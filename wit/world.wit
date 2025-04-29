@@ -1,0 +1,12 @@
+package mattilsynet:map-me-gcp;
+
+world map-me-gcp{
+  //wasmcloud-go sdk for ease of logging and other goodies
+  include wasmcloud:component-go/imports@0.1.0;
+  
+  import wasmcloud:messaging/consumer@0.2.0;
+  
+  
+  export mattilsynet:map-kv/key-value-watcher@0.1.0;
+  export mattilsynet:cronjob/cronjob@0.0.1; 
+  }

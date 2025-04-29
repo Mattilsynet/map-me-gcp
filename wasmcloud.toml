@@ -1,0 +1,9 @@
+name = "mapMeGcp"
+language = "tinygo"
+type = "component"
+version = "0.1.0"
+
+[component]
+wit_world = "map-me-gcp"
+wasm_target = "wasm32-wasi-preview2"
+destination = "build/mapMeGcp_s.wasm"
