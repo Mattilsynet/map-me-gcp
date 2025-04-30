@@ -2,10 +2,3 @@
 
 // Package cronjob represents the exported interface "mattilsynet:cronjob/cronjob@0.0.1".
 package cronjob
-
-//go:wasmexport mattilsynet:cronjob/cronjob@0.0.1#cron-handler
-//export mattilsynet:cronjob/cronjob@0.0.1#cron-handler
-func wasmexport_CronHandler() {
-	Exports.CronHandler()
-	return
-}

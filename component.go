@@ -1,4 +1,3 @@
-//go:generate go run github.com/bytecodealliance/wasm-tools-go/cmd/wit-bindgen-go generate -world mapMeGcp -out gen ./wit
 package main
 
 import (
@@ -6,26 +5,39 @@ import (
 
 	"go.wasmcloud.dev/component/log/wasilog"
 
-	keyvaluewatcher "github.com/Mattilsynet/map-me-gcp/gen/mattilsynet/map-kv/key-value-watcher"
-	"github.com/Mattilsynet/map-me-gcp/gen/mattilsynet/map-kv/types"
 	"github.com/Mattilsynet/map-me-gcp/pkg/cronjob"
-	"github.com/bytecodealliance/wasm-tools-go/cm"
+	"github.com/Mattilsynet/map-me-gcp/pkg/nats"
 )
 
-var logger *slog.Logger
+var (
+	logger *slog.Logger
+	conn   *nats.Conn
+)
 
 func init() {
 	logger = wasilog.ContextLogger("mapMeGcp")
-	cronjob.RegisterCronHandler(mapMeGcpCronHandler)
-	keyvaluewatcher.Exports.WatchAll = mapMeGcpHandler
+	cronjob.RegisterCronHandler(mapMeGcpCronHandle)
+	conn := nats.NewConn()
+	js, err := conn.Jetstream()
+	if err != nil {
+		logger.Error("Failed to create Jetstream context", "error", err)
+		return
+	}
+	kv, err := js.KeyValue()
+	if err != nil {
+		logger.Error("Failed to create KeyValue context", "error", err)
+		return
+	}
+	kv.RegisterKvWatchAll(mapMeGcpWatch)
 }
 
-func mapMeGcpCronHandler() {
+func mapMeGcpCronHandle() {
 	logger.Info("Cronjob handler called")
+	// need to do kv.GetAll and surf through
+	// should align for each with what mapMeGcpWatch also uses
 }
 
-func mapMeGcpHandler(kve types.KeyValueEntry) cm.Result[string, struct{}, string] {
-	return cm.OK[cm.Result[string, struct{}, string]](struct{}{})
+func mapMeGcpWatch(kve *nats.KeyValueEntry) {
 }
 
 // main should never be used in a wasm component, everything inside init()

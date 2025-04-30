@@ -8,6 +8,11 @@ import (
 	"github.com/bytecodealliance/wasm-tools-go/cm"
 )
 
+// BrokerMessage represents the type alias "wasmcloud:messaging/consumer@0.2.0#broker-message".
+//
+// See [types.BrokerMessage] for more information.
+type BrokerMessage = types.BrokerMessage
+
 // Request represents the imported function "request".
 //
 // Perform a request operation on a subject
@@ -16,17 +21,13 @@ import (
 //	string>
 //
 //go:nosplit
-func Request(subject string, body cm.List[uint8], timeoutMs uint32) (result cm.Result[BrokerMessageShape, types.BrokerMessage, string]) {
+func Request(subject string, body cm.List[uint8], timeoutMs uint32) (result cm.Result[BrokerMessageShape, BrokerMessage, string]) {
 	subject0, subject1 := cm.LowerString(subject)
 	body0, body1 := cm.LowerList(body)
 	timeoutMs0 := (uint32)(timeoutMs)
 	wasmimport_Request((*uint8)(subject0), (uint32)(subject1), (*uint8)(body0), (uint32)(body1), (uint32)(timeoutMs0), &result)
 	return
 }
-
-//go:wasmimport wasmcloud:messaging/consumer@0.2.0 request
-//go:noescape
-func wasmimport_Request(subject0 *uint8, subject1 uint32, body0 *uint8, body1 uint32, timeoutMs0 uint32, result *cm.Result[BrokerMessageShape, types.BrokerMessage, string])
 
 // Publish represents the imported function "publish".
 //
@@ -35,12 +36,8 @@ func wasmimport_Request(subject0 *uint8, subject1 uint32, body0 *uint8, body1 ui
 //	publish: func(msg: broker-message) -> result<_, string>
 //
 //go:nosplit
-func Publish(msg types.BrokerMessage) (result cm.Result[string, struct{}, string]) {
+func Publish(msg BrokerMessage) (result cm.Result[string, struct{}, string]) {
 	msg0, msg1, msg2, msg3, msg4, msg5, msg6 := lower_BrokerMessage(msg)
 	wasmimport_Publish((*uint8)(msg0), (uint32)(msg1), (*uint8)(msg2), (uint32)(msg3), (uint32)(msg4), (*uint8)(msg5), (uint32)(msg6), &result)
 	return
 }
-
-//go:wasmimport wasmcloud:messaging/consumer@0.2.0 publish
-//go:noescape
-func wasmimport_Publish(msg0 *uint8, msg1 uint32, msg2 *uint8, msg3 uint32, msg4 uint32, msg5 *uint8, msg6 uint32, result *cm.Result[string, struct{}, string])

@@ -10,6 +10,7 @@ import (
 
 // BrokerMessageShape is used for storage in variant or result types.
 type BrokerMessageShape struct {
+	_     cm.HostLayout
 	shape [unsafe.Sizeof(types.BrokerMessage{})]byte
 }
 

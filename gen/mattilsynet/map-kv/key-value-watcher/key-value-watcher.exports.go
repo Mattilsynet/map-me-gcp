@@ -3,7 +3,6 @@
 package keyvaluewatcher
 
 import (
-	"github.com/Mattilsynet/map-me-gcp/gen/mattilsynet/map-kv/types"
 	"github.com/bytecodealliance/wasm-tools-go/cm"
 )
 
@@ -12,10 +11,10 @@ var Exports struct {
 	// Watch represents the caller-defined, exported function "watch".
 	//
 	//	watch: func(key-value-entry: key-value-entry) -> result<_, string>
-	Watch func(keyValueEntry types.KeyValueEntry) (result cm.Result[string, struct{}, string])
+	Watch func(keyValueEntry KeyValueEntry) (result cm.Result[string, struct{}, string])
 
 	// WatchAll represents the caller-defined, exported function "watch-all".
 	//
 	//	watch-all: func(key-value-entry: key-value-entry) -> result<_, string>
-	WatchAll func(keyValueEntry types.KeyValueEntry) (result cm.Result[string, struct{}, string])
+	WatchAll func(keyValueEntry KeyValueEntry) (result cm.Result[string, struct{}, string])
 }
