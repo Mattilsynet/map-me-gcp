@@ -3,6 +3,8 @@ package mattilsynet:map-me-gcp;
 world map-me-gcp {
 	import wasmcloud:messaging/types@0.2.0;
 	import wasmcloud:messaging/consumer@0.2.0;
+	import mattilsynet:map-kv/types@0.1.0;
+	import mattilsynet:map-kv/key-value@0.1.0;
 	import wasi:logging/logging@0.1.0-draft;
 	import wasi:config/runtime@0.2.0-draft;
 	import wasi:io/poll@0.2.0;
@@ -37,7 +39,6 @@ world map-me-gcp {
 	import wasi:random/random@0.2.0;
 	import wasi:random/insecure@0.2.0;
 	import wasi:random/insecure-seed@0.2.0;
-	import mattilsynet:map-kv/types@0.1.0;
 	export mattilsynet:map-kv/key-value-watcher@0.1.0;
 	export mattilsynet:cronjob/cronjob@0.0.1;
 }
@@ -60,6 +61,16 @@ package mattilsynet:map-kv@0.1.0 {
 		use types.{key-value-entry};
 		watch: func(key-value-entry: key-value-entry) -> result<_, string>;
 		watch-all: func(key-value-entry: key-value-entry) -> result<_, string>;
+	}
+
+	interface key-value {
+		use types.{key-value-entry};
+		create: func(key: string, value: list<u8>) -> result<_, string>;
+		get: func(key: string) -> result<key-value-entry, string>;
+		put: func(key: string, value: list<u8>) -> result<_, string>;
+		purge: func(key: string) -> result<_, string>;
+		delete: func(key: string) -> result<_, string>;
+		list-keys: func() -> result<list<string>, string>;
 	}
 }
 
