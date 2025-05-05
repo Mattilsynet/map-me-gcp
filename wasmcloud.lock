@@ -21,6 +21,15 @@ version = "0.1.0"
 digest = "sha256:53118d195bf2dcec2c96d08eb8b214e791b145e70fbae34de771c5ef982646ae"
 
 [[packages]]
+name = "mattilsynet:me-gcp-cloudrun-job-admin"
+registry = "ghcr.io"
+
+[[packages.versions]]
+requirement = "=0.1.0"
+version = "0.1.0"
+digest = "sha256:eb5d32e625e168af377bfa2370947cd0544a91d023b0b987ed78c5c676a44900"
+
+[[packages]]
 name = "wasmcloud:component-go"
 registry = "wasmcloud.com"
 

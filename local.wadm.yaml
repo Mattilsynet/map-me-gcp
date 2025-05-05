@@ -6,9 +6,9 @@ metadata:
   name: mapMeGcp
   annotations:
     version: v0.0.1
-# Change description to something which suits your application
+    # Change description to something which suits your application
     description: "description"
-# Change authors to yourself to begin with
+    # Change authors to yourself to begin with
     authors: "authors"
 spec:
   components:
@@ -20,7 +20,7 @@ spec:
         - type: spreadscaler
           properties:
             replicas: 1
-# Link component with nats-core to get publishing capability
+        # Link component with nats-core to get publishing capability
         - type: link
           properties:
             target:
@@ -28,7 +28,27 @@ spec:
             namespace: wasmcloud
             package: messaging
             interfaces: [consumer]
-# Setup nats-core provider, such that it's deployed to the wadm server and made available for this application for linking 
+        - type: link
+          properties:
+            target:
+              name: map-me-gcp-cloudrunjob-provider
+              config:
+                - name: map-me-gcp-cloudrunjob-provider-config
+                  properties:
+                    project_id: "map-ops-dev-c2c8"
+                    image: "us-docker.pkg.dev/cloudrun/container/job:latest"
+                    location: "europe-north1"
+              # secrets:
+              #   - name: map-me-gcp-cloudrunjob-sa
+              #     properties:
+              #       policy: nats-kv
+              #       key: map-me-gcp-cloudrunjob-sa
+            namespace: mattilsynet
+            package: me-gcp-cloudrun-job-admin
+            interfaces: [me-gcp-cloudrun-job-admin]
+
+    # Setup nats-core provider, such that it's deployed to the wadm server and made available for this application for linking
+    #
     - name: nats-core
       type: capability
       properties:
@@ -42,12 +62,12 @@ spec:
           properties:
             replicas: 1
 
-# Nats KV provider, look in component target for configuration example, OBS! watch-key not implemented as of 12.02.2025 
+    # Nats KV provider, look in component target for configuration example, OBS! watch-key not implemented as of 12.02.2025
     - name: map-nats-kv
       type: capability
       properties:
         image: ghcr.io/Mattilsynet/map-nats-kv:v0.0.2-pre-15
-#Link the component to nats-kv to watch-all on a given bucket
+      #Link the component to nats-kv to watch-all on a given bucket
       traits:
         - type: link
           properties:
@@ -58,11 +78,11 @@ spec:
             source_config:
               - name: nats-kv-watcher-config
                 properties:
-                  bucket: "my-bucket"
+                  bucket: "map-me-gcp"
                   url: "nats://localhost:4222"
                   #startup_time is in seconds, and it's how many seconds before the provider starts, the downside of this is that you have to make a qualified guess or else this might not work. Wasmcloud doesn't supply us with a component health check which the provider can wait for yet
                   startup_time: "5"
-# Cronjob provider, look in component how it's used
+    # Cronjob provider, look in component how it's used
     - name: cronjob
       type: capability
       properties:
@@ -78,5 +98,12 @@ spec:
             target_config:
               - name: log-component-cron-expression
                 properties:
-                  expression: "@every 2s"
- 
+                  expression: "@every 1m"
+    - name: map-me-gcp-cloudrunjob-provider
+      type: capability
+      properties:
+        image: ghcr.io/Mattilsynet/map-me-gcp-cloudrunjob:v0.0.2
+      traits:
+        - type: spreadscaler
+          properties:
+            replicas: 1

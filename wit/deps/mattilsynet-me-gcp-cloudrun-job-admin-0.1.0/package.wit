@@ -1,0 +1,35 @@
+package mattilsynet:me-gcp-cloudrun-job-admin@0.1.0;
+
+interface types {
+  record managed-environment-gcp-manifest {
+    bytes: list<u8>,
+  }
+
+  variant error-type {
+    not-found,
+    unauthorized,
+    already-exists,
+    unknown,
+  }
+
+  record error {
+    error-type: error-type,
+    message: string,
+  }
+}
+
+interface me-gcp-cloudrun-job-admin {
+  use types.{managed-environment-gcp-manifest, error-type, error};
+
+  update: func(manifest: managed-environment-gcp-manifest) -> result<managed-environment-gcp-manifest, error>;
+
+  get: func(manifest: managed-environment-gcp-manifest) -> result<managed-environment-gcp-manifest, error>;
+
+  delete: func(manifest: managed-environment-gcp-manifest) -> result<managed-environment-gcp-manifest, error>;
+}
+
+world provider {
+  import types;
+
+  export me-gcp-cloudrun-job-admin;
+}

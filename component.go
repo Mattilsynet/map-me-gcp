@@ -20,6 +20,7 @@ var (
 
 func init() {
 	logger = wasilog.ContextLogger("mapMeGcp")
+	logger.Info("Initializing mapMeGcp component")
 	cronjob.RegisterCronHandler(mapMeGcpCronHandle)
 	conn := nats.NewConn()
 	js, err := conn.Jetstream()
@@ -36,17 +37,20 @@ func init() {
 }
 
 func mapMeGcpCronHandle() {
+	logger.Info("Cron job triggered")
 	kves, err := mapMeGcpKV.GetAll()
 	if err != nil {
 		logger.Error("Failed to get all KeyValue entries", "error", err)
 		return
 	}
 	for _, kve := range kves {
+		logger.Info("Processing KeyValue entry", "key", kve.Key)
 		mapMeGcpHandle(kve)
 	}
 }
 
 func mapMeGcpHandle(kve *nats.KeyValueEntry) {
+	logger.Info("Handling KeyValue entry", "key", kve.Key)
 	managedGcpEnvAsBytes := kve.Value
 	managedGcpEnv, err := managedenvironment.ToManagedEnvironment(managedGcpEnvAsBytes)
 	if err != nil {

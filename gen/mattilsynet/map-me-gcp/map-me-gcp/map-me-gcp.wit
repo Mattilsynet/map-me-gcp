@@ -3,6 +3,8 @@ package mattilsynet:map-me-gcp;
 world map-me-gcp {
 	import wasmcloud:messaging/types@0.2.0;
 	import wasmcloud:messaging/consumer@0.2.0;
+	import mattilsynet:me-gcp-cloudrun-job-admin/types@0.1.0;
+	import mattilsynet:me-gcp-cloudrun-job-admin/me-gcp-cloudrun-job-admin@0.1.0;
 	import mattilsynet:map-kv/types@0.1.0;
 	import mattilsynet:map-kv/key-value@0.1.0;
 	import wasi:logging/logging@0.1.0-draft;
@@ -71,6 +73,33 @@ package mattilsynet:map-kv@0.1.0 {
 		purge: func(key: string) -> result<_, string>;
 		delete: func(key: string) -> result<_, string>;
 		list-keys: func() -> result<list<string>, string>;
+	}
+}
+
+package mattilsynet:me-gcp-cloudrun-job-admin@0.1.0 {
+	interface types {
+		record managed-environment-gcp-manifest {
+			bytes: list<u8>,
+		}
+		variant error-type {
+			not-found,
+			unauthorized,
+			already-exists,
+			unknown,
+		}
+		record error {
+			error-type: error-type,
+			message: string,
+		}
+	}
+
+	interface me-gcp-cloudrun-job-admin {
+		use types.{managed-environment-gcp-manifest};
+		use types.{error-type};
+		use types.{error};
+		update: func(manifest: managed-environment-gcp-manifest) -> result<managed-environment-gcp-manifest, error>;
+		get: func(manifest: managed-environment-gcp-manifest) -> result<managed-environment-gcp-manifest, error>;
+		delete: func(manifest: managed-environment-gcp-manifest) -> result<managed-environment-gcp-manifest, error>;
 	}
 }
 
