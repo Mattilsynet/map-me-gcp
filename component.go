@@ -8,7 +8,6 @@ import (
 	managedenvironment "github.com/Mattilsynet/map-me-gcp-cloudrunjob/component/pkg/managed-environment"
 	"github.com/Mattilsynet/map-me-gcp-cloudrunjob/component/pkg/manifest"
 	cloudrunjobadmin "github.com/Mattilsynet/map-me-gcp/pkg/cloudrunjob-admin"
-	"github.com/Mattilsynet/map-me-gcp/pkg/cronjob"
 	"github.com/Mattilsynet/map-me-gcp/pkg/nats"
 )
 
@@ -21,7 +20,6 @@ var (
 func init() {
 	logger = wasilog.ContextLogger("mapMeGcp")
 	logger.Info("Initializing mapMeGcp component")
-	cronjob.RegisterCronHandler(mapMeGcpCronHandle)
 	conn := nats.NewConn()
 	js, err := conn.Jetstream()
 	if err != nil {

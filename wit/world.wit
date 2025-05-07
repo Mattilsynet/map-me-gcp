@@ -9,5 +9,4 @@ world map-me-gcp{
   import mattilsynet:me-gcp-cloudrun-job-admin/me-gcp-cloudrun-job-admin@0.1.0;
   import mattilsynet:map-kv/key-value@0.1.0;
   export mattilsynet:map-kv/key-value-watcher@0.1.0;
-  export mattilsynet:cronjob/cronjob@0.0.1; 
   }
