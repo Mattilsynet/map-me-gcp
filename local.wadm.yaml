@@ -30,6 +30,17 @@ spec:
             interfaces: [consumer]
         - type: link
           properties:
+            target: map-nats-kv
+            namespace: mattilsynet
+            package: map-kv
+            interfaces: [key-value]
+            target_config:
+              - name: nats-kv
+                properties:
+                  bucket: "map-me-gcp"
+                  url: "nats://localhost:4222"
+        - type: link
+          properties:
             target:
               name: map-me-gcp-cloudrunjob-provider
               config:
@@ -38,19 +49,12 @@ spec:
                     project_id: "map-ops-dev-c2c8"
                     image: "us-docker.pkg.dev/cloudrun/container/job:latest"
                     location: "europe-north1"
-                    map-me-gcp-cloudrunjob-sa: |
-                      {"account": "",
-                      "client_id": "dark-side-client-id",
-                      "client_secret": "darkside-secret",
-                      "quota_project_id": "darkside-project-id-d1f9",
-                      "refresh_token": "darkside-token",
-                      "type": "authorized_user",
-                      "universe_domain": "googleapis.com"}
-              # secrets:
-              #   - name: map-me-gcp-cloudrunjob-sa
-              #     properties:
-              #       policy: nats-kv
-              #       key: map-me-gcp-cloudrunjob-sa
+                    # map-me-gcp-cloudrunjob-sa: |
+              secrets:
+                - name: map-me-gcp-cloudrunjob-sa
+                  properties:
+                    policy: nats-kv
+                    key: map-me-gcp-cloudrunjob-sa
             namespace: mattilsynet
             package: me-gcp-cloudrun-job-admin
             interfaces: [me-gcp-cloudrun-job-admin]
@@ -74,7 +78,7 @@ spec:
     - name: map-nats-kv
       type: capability
       properties:
-        image: ghcr.io/Mattilsynet/map-nats-kv:v0.0.2-pre-15
+        image: ghcr.io/Mattilsynet/map-nats-kv:v0.0.2-pre-25
       #Link the component to nats-kv to watch-all on a given bucket
       traits:
         - type: link
@@ -110,7 +114,7 @@ spec:
     - name: map-me-gcp-cloudrunjob-provider
       type: capability
       properties:
-        image: ghcr.io/Mattilsynet/map-me-gcp-cloudrunjob:v0.0.2.2
+        image: ghcr.io/Mattilsynet/map-me-gcp-cloudrunjob:v0.0.2.3
       traits:
         - type: spreadscaler
           properties:

@@ -52,7 +52,13 @@ func mapMeGcpHandle(kve *nats.KeyValueEntry) {
 	managedGcpEnvAsBytes := kve.Value
 	managedGcpEnv, err := managedenvironment.ToManagedEnvironment(managedGcpEnvAsBytes)
 	if err != nil {
-		logger.Error("Failed to unmarshal ManagedEnvironment", "error", err)
+		logger.Error("Failed to unmarshal ManagedEnvironment for gcp", "error", err)
+		return
+	}
+	changed := manifest.IsChanged(managedGcpEnv)
+	if !changed {
+		logger.Info("Manifest unchanged since last reconciliation: ", "key", kve.Key)
+		//don't handle
 		return
 	}
 	witManifest, err := manifest.ToWitManifest(managedGcpEnv)
@@ -71,9 +77,14 @@ func mapMeGcpHandle(kve *nats.KeyValueEntry) {
 		logger.Error("Failed to unmarshal WitManifest", "error", err)
 		return
 	}
-	returnedManifestAsBytes, err := managedenvironment.ToNatsMsg(returnedManifest)
+	err = manifest.AddResourceVersion(returnedManifest)
 	if err != nil {
-		logger.Error("Failed to marshal ManagedEnvironment", "error", err)
+		logger.Error("Failed to add resource version to updated manifest", "error", err)
+		return
+	}
+	returnedManifestAsBytes, err := managedenvironment.ToBytes(returnedManifest)
+	if err != nil {
+		logger.Error("Failed to marshal ManagedEnvironment for gcp", "error", err)
 		return
 	}
 	// INFO: updating KV with new statuses
