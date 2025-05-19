@@ -2,7 +2,7 @@ module github.com/Mattilsynet/map-me-gcp
 
 go 1.24
 
-toolchain go1.24.2
+toolchain go1.24.3
 
 require go.wasmcloud.dev/component v0.0.6
 
