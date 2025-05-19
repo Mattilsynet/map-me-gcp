@@ -1,8 +1,8 @@
 name: build_push
 on:
- push:
+  push:
     tags:
-      - 'v*'
+      - "v*"
 
 jobs:
   wash-build:
@@ -12,8 +12,8 @@ jobs:
       test-deploy: local.wadm.yaml
       wasm-bin: mapMeGcp_s.wasm
     permissions:
-      contents: 'write'
-      packages: 'write'
+      contents: "write"
+      packages: "write"
     steps:
       #INFO: setup environment
       - name: checkout
@@ -21,7 +21,7 @@ jobs:
       - name: install go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.22.0'
+          go-version: "1.22.0"
       - name: install tinygo
         uses: acifani/setup-tinygo@v2
         with:
@@ -30,26 +30,30 @@ jobs:
       - name: install wash tools
         uses: taiki-e/install-action@v2
         with:
-          tool: wit-bindgen-cli, wasm-tools, wit-deps-cli, wash-cli
+          tool: wit-bindgen-cli, wasm-tools@1.225.0, wit-deps-cli, wash-cli
       - name: download wasm-tools-go
         shell: bash
         run: |
           go mod download github.com/bytecodealliance/wasm-tools-go
           go get go.bytecodealliance.org/cmd/wit-bindgen-go
-      #INFO: generate files
-      - name: wit-deps
+      - name: Setup registry
+        env:
+          WASH_REG_USER: ${{ github.actor }}
+          WASH_REG_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          wit-deps
-      - name: generate go files
+          cat << EOF > package_config.toml
+          [namespace_registries]
+          mattilsynet = "ghcr.io"
+
+          [registry."ghcr.io".oci]
+          auth = { username = "${WASH_REG_USER}", password = "${WASH_REG_PASSWORD}"}
+          EOF
+          echo "WASH_PACKAGE_CONFIG_FILE=$(realpath package_config.toml)" >> $GITHUB_ENV
+      - name: wash wit fetch
         shell: bash
         run: |
-           go generate ./...
-      - name: go mod tidy
-        shell: bash
-        run: |
-           go mod tidy
-      #INFO: Validate component yamls
+          wash wit fetch
       - name: validate-yaml
         shell: bash
         run: |
@@ -59,7 +63,7 @@ jobs:
         shell: bash
         run: |
           wash build
-        #INFO: wash test application isolated 
+        #INFO: wash test application isolated
       - name: test component load
         shell: bash
         run: |
@@ -88,6 +92,5 @@ jobs:
           WASH_REG_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-           wash push ghcr.io/${{ github.repository }}:${{ github.ref_name }} ${{ env.wasm-bin }} --annotation org.opencontainers.image.source=${{github.server_url }}/${{ github.repository }}
+          wash push ghcr.io/${{ github.repository }}:${{ github.ref_name }} ${{ env.wasm-bin }} --annotation org.opencontainers.image.source=${{github.server_url }}/${{ github.repository }}
         working-directory: build
- 
