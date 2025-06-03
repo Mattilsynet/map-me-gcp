@@ -9,6 +9,11 @@ metadata:
     # Change authors to yourself to begin with
     authors: "team applikasjonsplattform"
 spec:
+  policies:
+    - name: nats-kv
+      type: policy.secret.wasmcloud.dev/v1alpha1
+      properties:
+        backend: nats-kv
   components:
     - name: mapMeGcp
       type: component
@@ -75,8 +80,8 @@ spec:
             properties:
               cluster_uris: "nats://connect.nats.mattilsynet.io:4222"
               subscriptions: ""
-              client_seed:
-              client_jwt:
+              client_seed: ""
+              client_jwt: ""
       traits:
         - type: spreadscalar
           properties:
