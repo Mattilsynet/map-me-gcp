@@ -1,3 +1,4 @@
+//go:generate go run github.com/bytecodealliance/wasm-tools-go/cmd/wit-bindgen-go generate --world map-me-gcp --out gen ./wit
 package main
 
 import (
@@ -8,6 +9,7 @@ import (
 	managedenvironment "github.com/Mattilsynet/map-me-gcp-cloudrunjob/component/pkg/managed-environment"
 	"github.com/Mattilsynet/map-me-gcp-cloudrunjob/component/pkg/manifest"
 	cloudrunjobadmin "github.com/Mattilsynet/map-me-gcp/pkg/cloudrunjob-admin"
+	"github.com/Mattilsynet/map-me-gcp/pkg/cronjob"
 	"github.com/Mattilsynet/map-me-gcp/pkg/nats"
 )
 
@@ -31,6 +33,7 @@ func init() {
 		logger.Error("Failed to create KeyValue context", "error", err)
 		return
 	}
+	cronjob.RegisterCronHandler(mapMeGcpCronHandle)
 	mapMeGcpKV.RegisterKvWatchAll(mapMeGcpHandle)
 }
 
@@ -58,7 +61,7 @@ func mapMeGcpHandle(kve *nats.KeyValueEntry) {
 	changed := manifest.IsChanged(managedGcpEnv)
 	if !changed {
 		logger.Info("Manifest unchanged since last reconciliation: ", "key", kve.Key)
-		//don't handle
+		// don't handle
 		return
 	}
 	witManifest, err := manifest.ToWitManifest(managedGcpEnv)

@@ -5,16 +5,16 @@ metadata:
   annotations:
     version: v0.0.1
     # Change description to something which suits your application
-    description: "description"
+    description: "responsible for taking a managed environment for gcp request and put in nats kv"
     # Change authors to yourself to begin with
-    authors: "authors"
+    authors: "team applikasjonsplattform"
 spec:
   components:
     - name: mapMeGcp
       type: component
       properties:
-        # replace with image on gh 
-        image: file://./build/mapMeGcp_s.wasm
+        # replace with image on gh
+        image: ghcr.io/mattilsynet/map-me-gcp:v0.0.1.4
       traits:
         - type: spreadscaler
           properties:
@@ -29,15 +29,21 @@ spec:
             interfaces: [consumer]
         - type: link
           properties:
-            target: map-nats-kv
+            target:
+              name: map-nats-kv
             namespace: mattilsynet
             package: map-kv
             interfaces: [key-value]
-            target_config:
+            config:
               - name: nats-kv
                 properties:
                   bucket: "map-me-gcp"
-                  url: "nats://localhost:4222"
+                  url: "nats://connect.nats.mattilsynet.io:4222"
+            secrets:
+              - name: nats-credentials
+                properties:
+                  policy: nats-kv
+                  key: map-managed-gcp-environment-nats-credentials
         - type: link
           properties:
             target:
@@ -67,7 +73,10 @@ spec:
         config:
           - name: nats-core-config
             properties:
-              cluster_uris: "nats://127.0.0.1:4222"
+              cluster_uris: "nats://connect.nats.mattilsynet.io:4222"
+              subscriptions: ""
+              client_seed:
+              client_jwt:
       traits:
         - type: spreadscalar
           properties:
@@ -77,7 +86,7 @@ spec:
     - name: map-nats-kv
       type: capability
       properties:
-        image: ghcr.io/Mattilsynet/map-nats-kv:v0.0.2-pre-25
+        image: ghcr.io/Mattilsynet/map-nats-kv:v0.0.2-pre-26
       #Link the component to nats-kv to watch-all on a given bucket
       traits:
         - type: link
@@ -86,17 +95,22 @@ spec:
             namespace: mattilsynet
             package: map-kv
             interfaces: [key-value-watcher]
-            source_config:
-              - name: nats-kv-watcher-config
-                properties:
-                  bucket: "map-me-gcp"
-                  url: "nats://localhost:4222"
-                  startup_time: "5"
+            source:
+              config:
+                - name: nats-kv-watcher-config
+                  properties:
+                    bucket: "map-me-gcp"
+                    url: "nats://connect.nats.mattilsynet.io:4222"
+                    startup_time: "5"
+            secrets:
+              properties:
+                policy: nats-kv
+                key: map-managed-gcp-environment-nats-credentials
     - name: map-me-gcp-cloudrunjob-provider
       type: capability
       properties:
-        image: ghcr.io/Mattilsynet/map-me-gcp-cloudrunjob:v0.0.2.3
+        image: ghcr.io/Mattilsynet/map-me-gcp-cloudrunjob:v0.0.2.4
       traits:
         - type: spreadscaler
           properties:
- 
+            replicas: 1

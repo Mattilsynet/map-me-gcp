@@ -4,11 +4,11 @@ go 1.24
 
 toolchain go1.24.3
 
-require go.wasmcloud.dev/component v0.0.6
+require go.wasmcloud.dev/component v0.0.8
 
 require (
-	github.com/Mattilsynet/map-me-gcp-cloudrunjob/component v0.0.0-20250508122227-8d8b5c97cf53
-	github.com/Mattilsynet/mapis v0.0.5
+	github.com/Mattilsynet/map-me-gcp-cloudrunjob/component v0.0.0-20250602202822-a986a1e3da21
+	github.com/Mattilsynet/mapis v0.0.9
 	github.com/bytecodealliance/wasm-tools-go v0.3.2
 	github.com/nats-io/nats.go v1.41.2
 )
@@ -27,12 +27,11 @@ require (
 	github.com/samber/slog-common v0.18.1 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/ulikunitz/xz v0.5.12 // indirect
-	github.com/urfave/cli/v3 v3.3.2 // indirect
-	go.bytecodealliance.org/cm v0.2.2 // indirect
+	github.com/urfave/cli/v3 v3.3.3 // indirect
+	go.bytecodealliance.org/cm v0.3.0 // indirect
 	golang.org/x/crypto v0.37.0 // indirect
 	golang.org/x/mod v0.24.0 // indirect
-	golang.org/x/sys v0.32.0 // indirect
-	golang.org/x/text v0.24.0 // indirect
-	golang.org/x/tools v0.30.0 // indirect
+	golang.org/x/sys v0.33.0 // indirect
+	golang.org/x/text v0.25.0 // indirect
 	google.golang.org/protobuf v1.36.6 // indirect
 )
