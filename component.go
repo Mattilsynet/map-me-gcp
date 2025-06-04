@@ -58,6 +58,9 @@ func mapMeGcpHandle(kve *nats.KeyValueEntry) {
 		logger.Error("Failed to unmarshal ManagedEnvironment for gcp", "error", err)
 		return
 	}
+	// INFO: Need to change this such that we guarantee that the cloudrunjob is up and not just check towards local state, maybe let the cronjob handle it
+	// But we also need to check this though
+	// INFO: Need to update cloudrunjob provider to also yield result state of latest run
 	changed := manifest.IsChanged(managedGcpEnv)
 	if !changed {
 		logger.Info("Manifest unchanged since last reconciliation: ", "key", kve.Key)
@@ -75,6 +78,7 @@ func mapMeGcpHandle(kve *nats.KeyValueEntry) {
 		return
 	}
 	// INFO: after we've created/updated cloudrunjob responsible of creation of a given GCP ME we need to update manifest back to user
+	// We can do this by giving a ready true
 	returnedManifest, err := manifest.FromWitManifest(returnedWitManifest)
 	if err != nil {
 		logger.Error("Failed to unmarshal WitManifest", "error", err)
