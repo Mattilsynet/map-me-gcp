@@ -17,6 +17,11 @@ func Delete(manifest *admin.ManagedEnvironmentGcpManifest) (*admin.ManagedEnviro
 	return FromCmResultToIdomaticGo(adminResult)
 }
 
+func Get(manifest *admin.ManagedEnvironmentGcpManifest) (*admin.ManagedEnvironmentGcpManifest, error) {
+	adminResult := admin.Get(*manifest)
+	return FromCmResultToIdomaticGo(adminResult)
+}
+
 func FromCmResultToIdomaticGo(adminResult cm.Result[admin.ErrorShape, admin.ManagedEnvironmentGcpManifest, admin.Error]) (*admin.ManagedEnvironmentGcpManifest, error) {
 	if adminResult.Err() != nil {
 		return nil, errors.New(adminResult.Err().Message)

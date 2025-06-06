@@ -58,18 +58,29 @@ func mapMeGcpHandle(kve *nats.KeyValueEntry) {
 		logger.Error("Failed to unmarshal ManagedEnvironment for gcp", "error", err)
 		return
 	}
-	// INFO: Need to change this such that we guarantee that the cloudrunjob is up and not just check towards local state, maybe let the cronjob handle it
-	// But we also need to check this though
-	// INFO: Need to update cloudrunjob provider to also yield result state of latest run
-	changed := manifest.IsChanged(managedGcpEnv)
-	if !changed {
-		logger.Info("Manifest unchanged since last reconciliation: ", "key", kve.Key)
-		// don't handle
-		return
-	}
 	witManifest, err := manifest.ToWitManifest(managedGcpEnv)
 	if err != nil {
 		logger.Error("Failed to unmarshal WitManifest", "error", err)
+		return
+	}
+	// INFO: Need to change this such that we guarantee that the cloudrunjob is up and not just check towards local state, maybe let the cloudrunjob provider handle it
+	// But we also need to check this though
+	// INFO: Need to update cloudrunjob provider to also yield result state of latest run
+
+	returnedGetManifest, err := cloudrunjobadmin.Get(witManifest)
+	// TODO: actually use this later
+	_ = returnedGetManifest
+	if err != nil {
+		// INFO: Should we assume that the crj has been manually deleted on GCP here?
+		logger.Error("Failed to get cloudrunjob with manifest", "error", err)
+		return
+	}
+	// INFO: Check result of previous, also check if manifests are the same as we got after is changed
+	// INFO: Put returnedGetManifest in here for validation (in nats towards manifest and towards gcp crj)
+	changed := manifest.IsChanged(managedGcpEnv) // INFO: need to change cloudrunjob provider's component pkg
+	if !changed {
+		logger.Info("Manifest unchanged since last reconciliation: ", "key", kve.Key)
+		// don't handle
 		return
 	}
 	returnedWitManifest, err := cloudrunjobadmin.Update(witManifest)
