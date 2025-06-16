@@ -14,6 +14,7 @@ type (
 	KeyValueEntry struct {
 		Key   string
 		Value []byte
+		Op    string
 	}
 )
 
@@ -26,7 +27,7 @@ type KvWatcher func(kv *KeyValueEntry)
 
 func (kv *KeyValue) RegisterKvWatchAll(fn KvWatcher) {
 	keyvaluewatcher.Exports.WatchAll = func(keyValueEntry types.KeyValueEntry) (result cm.Result[string, struct{}, string]) {
-		kve := KeyValueEntry{Key: keyValueEntry.Key, Value: keyValueEntry.Value.Slice()}
+		kve := KeyValueEntry{Key: keyValueEntry.Key, Value: keyValueEntry.Value.Slice(), Op: keyValueEntry.Op}
 		fn(&kve)
 		return cm.OK[cm.Result[string, struct{}, string]](struct{}{})
 	}
@@ -37,7 +38,8 @@ func (js *KeyValue) Get(key string) (*KeyValueEntry, error) {
 	if result.IsOK() {
 		resVal := result.OK().Value.Slice()
 		resKey := result.OK().Key
-		return &KeyValueEntry{resKey, resVal}, nil
+		resOp := result.OK().Op
+		return &KeyValueEntry{resKey, resVal, resOp}, nil
 	}
 	if result.IsErr() {
 		return nil, errors.New(*result.Err())
@@ -55,7 +57,8 @@ func (js *KeyValue) GetAll() ([]*KeyValueEntry, error) {
 			if result.IsOK() {
 				resVal := result.OK().Value.Slice()
 				resKey := result.OK().Key
-				entries = append(entries, &KeyValueEntry{resKey, resVal})
+				resOp := result.OK().Op
+				entries = append(entries, &KeyValueEntry{resKey, resVal, resOp})
 			}
 			if result.IsErr() {
 				return nil, errors.New(*result.Err())

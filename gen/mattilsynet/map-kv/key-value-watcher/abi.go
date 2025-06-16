@@ -7,8 +7,9 @@ import (
 	"github.com/bytecodealliance/wasm-tools-go/cm"
 )
 
-func lift_KeyValueEntry(f0 *uint8, f1 uint32, f2 *uint8, f3 uint32) (v types.KeyValueEntry) {
+func lift_KeyValueEntry(f0 *uint8, f1 uint32, f2 *uint8, f3 uint32, f4 *uint8, f5 uint32) (v types.KeyValueEntry) {
 	v.Key = cm.LiftString[string](f0, f1)
 	v.Value = cm.LiftList[cm.List[uint8]](f2, f3)
+	v.Op = cm.LiftString[string](f4, f5)
 	return
 }

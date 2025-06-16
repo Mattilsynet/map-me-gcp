@@ -6,28 +6,28 @@ import (
 	"github.com/bytecodealliance/wasm-tools-go/cm"
 )
 
-// This file contains wasmimport and wasmexport declarations for "mattilsynet:map-kv@0.1.0".
+// This file contains wasmimport and wasmexport declarations for "mattilsynet:map-kv@0.2.0".
 
-//go:wasmimport mattilsynet:map-kv/key-value@0.1.0 create
+//go:wasmimport mattilsynet:map-kv/key-value@0.2.0 create
 //go:noescape
 func wasmimport_Create(key0 *uint8, key1 uint32, value0 *uint8, value1 uint32, result *cm.Result[string, struct{}, string])
 
-//go:wasmimport mattilsynet:map-kv/key-value@0.1.0 get
+//go:wasmimport mattilsynet:map-kv/key-value@0.2.0 get
 //go:noescape
 func wasmimport_Get(key0 *uint8, key1 uint32, result *cm.Result[KeyValueEntryShape, KeyValueEntry, string])
 
-//go:wasmimport mattilsynet:map-kv/key-value@0.1.0 put
+//go:wasmimport mattilsynet:map-kv/key-value@0.2.0 put
 //go:noescape
 func wasmimport_Put(key0 *uint8, key1 uint32, value0 *uint8, value1 uint32, result *cm.Result[string, struct{}, string])
 
-//go:wasmimport mattilsynet:map-kv/key-value@0.1.0 purge
+//go:wasmimport mattilsynet:map-kv/key-value@0.2.0 purge
 //go:noescape
 func wasmimport_Purge(key0 *uint8, key1 uint32, result *cm.Result[string, struct{}, string])
 
-//go:wasmimport mattilsynet:map-kv/key-value@0.1.0 delete
+//go:wasmimport mattilsynet:map-kv/key-value@0.2.0 delete
 //go:noescape
 func wasmimport_Delete(key0 *uint8, key1 uint32, result *cm.Result[string, struct{}, string])
 
-//go:wasmimport mattilsynet:map-kv/key-value@0.1.0 list-keys
+//go:wasmimport mattilsynet:map-kv/key-value@0.2.0 list-keys
 //go:noescape
 func wasmimport_ListKeys(result *cm.Result[cm.List[string], cm.List[string], string])

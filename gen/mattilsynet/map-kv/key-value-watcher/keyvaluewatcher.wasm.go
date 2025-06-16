@@ -6,21 +6,21 @@ import (
 	"github.com/bytecodealliance/wasm-tools-go/cm"
 )
 
-// This file contains wasmimport and wasmexport declarations for "mattilsynet:map-kv@0.1.0".
+// This file contains wasmimport and wasmexport declarations for "mattilsynet:map-kv@0.2.0".
 
-//go:wasmexport mattilsynet:map-kv/key-value-watcher@0.1.0#watch
-//export mattilsynet:map-kv/key-value-watcher@0.1.0#watch
-func wasmexport_Watch(keyValueEntry0 *uint8, keyValueEntry1 uint32, keyValueEntry2 *uint8, keyValueEntry3 uint32) (result *cm.Result[string, struct{}, string]) {
-	keyValueEntry := lift_KeyValueEntry((*uint8)(keyValueEntry0), (uint32)(keyValueEntry1), (*uint8)(keyValueEntry2), (uint32)(keyValueEntry3))
+//go:wasmexport mattilsynet:map-kv/key-value-watcher@0.2.0#watch
+//export mattilsynet:map-kv/key-value-watcher@0.2.0#watch
+func wasmexport_Watch(keyValueEntry0 *uint8, keyValueEntry1 uint32, keyValueEntry2 *uint8, keyValueEntry3 uint32, keyValueEntry4 *uint8, keyValueEntry5 uint32) (result *cm.Result[string, struct{}, string]) {
+	keyValueEntry := lift_KeyValueEntry((*uint8)(keyValueEntry0), (uint32)(keyValueEntry1), (*uint8)(keyValueEntry2), (uint32)(keyValueEntry3), (*uint8)(keyValueEntry4), (uint32)(keyValueEntry5))
 	result_ := Exports.Watch(keyValueEntry)
 	result = &result_
 	return
 }
 
-//go:wasmexport mattilsynet:map-kv/key-value-watcher@0.1.0#watch-all
-//export mattilsynet:map-kv/key-value-watcher@0.1.0#watch-all
-func wasmexport_WatchAll(keyValueEntry0 *uint8, keyValueEntry1 uint32, keyValueEntry2 *uint8, keyValueEntry3 uint32) (result *cm.Result[string, struct{}, string]) {
-	keyValueEntry := lift_KeyValueEntry((*uint8)(keyValueEntry0), (uint32)(keyValueEntry1), (*uint8)(keyValueEntry2), (uint32)(keyValueEntry3))
+//go:wasmexport mattilsynet:map-kv/key-value-watcher@0.2.0#watch-all
+//export mattilsynet:map-kv/key-value-watcher@0.2.0#watch-all
+func wasmexport_WatchAll(keyValueEntry0 *uint8, keyValueEntry1 uint32, keyValueEntry2 *uint8, keyValueEntry3 uint32, keyValueEntry4 *uint8, keyValueEntry5 uint32) (result *cm.Result[string, struct{}, string]) {
+	keyValueEntry := lift_KeyValueEntry((*uint8)(keyValueEntry0), (uint32)(keyValueEntry1), (*uint8)(keyValueEntry2), (uint32)(keyValueEntry3), (*uint8)(keyValueEntry4), (uint32)(keyValueEntry5))
 	result_ := Exports.WatchAll(keyValueEntry)
 	result = &result_
 	return
