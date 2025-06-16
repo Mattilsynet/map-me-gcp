@@ -84,10 +84,13 @@ func mapMeGcpHandle(kve *nats.KeyValueEntry) {
 		return
 	}
 	// INFO: updating KV with new statuses
-	err = mapMeGcpKV.Put(kve.Key, returnedManifestAsBytes)
-	if err != nil {
-		logger.Error("Failed to put KeyValue entry", "error", err)
-		return
+	// check if returnedMAnifestAsBytes == witManifest
+	if manifest.IsChanged(returnedManifest) {
+		err = mapMeGcpKV.Put(kve.Key, returnedManifestAsBytes)
+		if err != nil {
+			logger.Error("Failed to put KeyValue entry", "error", err)
+			return
+		}
 	}
 }
 
