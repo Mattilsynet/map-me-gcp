@@ -68,11 +68,23 @@ func mapMeGcpHandle(kve *nats.KeyValueEntry) {
 		logger.Error("Failed to update/create cloudrunjob with manifest", "error", err)
 		return
 	}
+
 	returnedManifest, err := manifest.FromWitManifest(returnedWitManifest)
 	if err != nil {
 		logger.Error("Failed to unmarshal WitManifest", "error", err)
 		return
 	}
+	getWitManifest, err := cloudrunjobadmin.Get(returnedWitManifest)
+	if err != nil {
+		logger.Error("Failed to get cloudrunjob with manifest", "error", err)
+		return
+	}
+	getManifest, err := manifest.FromWitManifest(getWitManifest)
+	if err != nil {
+		logger.Error("Failed to unmarshal WitManifest from get", "error", err)
+		return
+	}
+	logger.Info("crj manifet status is: ", "status", getManifest.Status.GetStatusMap())
 	err = manifest.AddResourceVersion(returnedManifest)
 	if err != nil {
 		logger.Error("Failed to add resource version to updated manifest", "error", err)
