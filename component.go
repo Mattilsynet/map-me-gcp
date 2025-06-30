@@ -50,6 +50,16 @@ func mapMeGcpCronHandle() {
 	}
 }
 
+/*
+OBS! make sure its not recursively feeding ourselves
+1. update / create cloudrunjob
+2. get cloudrunjob execution status
+3. put execution status in mapis manifest (EXECUTION_PENDING på første, EXECUTION_SUCCEEDED / på cronjob)
+4. write to kv
+*/
+func mapManagedGcpEnvironmentHandle(kve *nats.KeyValueEntry) {
+}
+
 func mapMeGcpHandle(kve *nats.KeyValueEntry) {
 	logger.Info("Handling KeyValue entry", "key", kve.Key)
 	managedGcpEnvAsBytes := kve.Value
@@ -85,6 +95,7 @@ func mapMeGcpHandle(kve *nats.KeyValueEntry) {
 		return
 	}
 	logger.Info("crj manifet status is: ", "status", getManifest.Status.GetStatusMap())
+	// INFO: Logisk brist, denne vil alltid sette resource version i status til det samme som resource version i spec, som betyr at isChanged alltid vil returnere false
 	err = manifest.AddResourceVersion(returnedManifest)
 	if err != nil {
 		logger.Error("Failed to add resource version to updated manifest", "error", err)
@@ -104,6 +115,7 @@ func mapMeGcpHandle(kve *nats.KeyValueEntry) {
 			return
 		}
 	}
+	logger.Info("Done", "done", "yes")
 }
 
 // main should never be used in a wasm component, everything inside init()
