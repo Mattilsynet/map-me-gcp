@@ -11,6 +11,7 @@ import (
 	cloudrunjobadmin "github.com/Mattilsynet/map-me-gcp/pkg/cloudrunjob-admin"
 	"github.com/Mattilsynet/map-me-gcp/pkg/cronjob"
 	"github.com/Mattilsynet/map-me-gcp/pkg/nats"
+	"github.com/Mattilsynet/mapis/gen/go/managedgcpenvironment/v1"
 )
 
 var (
@@ -46,22 +47,29 @@ func mapMeGcpCronHandle() {
 	}
 	for _, kve := range kves {
 		logger.Info("Processing KeyValue entry", "key", kve.Key)
-		mapMeGcpHandle(kve)
+		mapManagedGcpEnvironmentCronjobHandle(kve)
 	}
 }
 
 /*
 OBS! make sure its not recursively feeding ourselves
-1. update / create cloudrunjob
-2. get cloudrunjob execution status
-3. put execution status in mapis manifest (EXECUTION_PENDING på første, EXECUTION_SUCCEEDED / på cronjob)
-4. write to kv
+1. get cloudrunjob execution status
+2. put execution status in mapis manifest (EXECUTION_PENDING på første, EXECUTION_SUCCEEDED / på cronjob)
+3. write to kv
 */
-func mapManagedGcpEnvironmentHandle(kve *nats.KeyValueEntry) {
+//TODO: Put this code inside provider cloudrunjob/component/pkg instead of here
+func RemoveResourceVersion(meGcp *managedgcpenvironment.ManagedGcpEnvironment) error {
+	if meGcp.Status == nil {
+		meGcp.Status = &managedgcpenvironment.ManagedGcpEnvironmentStatus{}
+	}
+	if meGcp.Status.StatusMap == nil {
+		meGcp.Status.StatusMap = make(map[string]string)
+	}
+	meGcp.Status.StatusMap["resource-version"] = ""
+	return nil
 }
 
-func mapMeGcpHandle(kve *nats.KeyValueEntry) {
-	logger.Info("Handling KeyValue entry", "key", kve.Key)
+func mapManagedGcpEnvironmentCronjobHandle(kve *nats.KeyValueEntry) {
 	managedGcpEnvAsBytes := kve.Value
 	managedGcpEnv, err := managedenvironment.ToManagedEnvironment(managedGcpEnvAsBytes)
 	if err != nil {
@@ -73,6 +81,57 @@ func mapMeGcpHandle(kve *nats.KeyValueEntry) {
 		logger.Error("Failed to unmarshal WitManifest", "error", err)
 		return
 	}
+	getWitManifest, err := cloudrunjobadmin.Get(witManifest)
+	if err != nil {
+		logger.Error("Failed to get cloudrunjob with manifest", "error", err)
+		RemoveResourceVersion(managedGcpEnv)
+		managednevironmentBytes, err := managedenvironment.ToBytes(managedGcpEnv)
+		if err != nil {
+			logger.Error("Failed to marshal ManagedEnvironment for gcp", "error", err)
+			return
+		}
+		err = mapMeGcpKV.Put(kve.Key, managednevironmentBytes)
+		if err != nil {
+			logger.Error("Failed to put KeyValue entry", "error", err)
+		}
+		return
+	}
+	getManifest, err := manifest.FromWitManifest(getWitManifest)
+	if err != nil {
+		logger.Error("Failed to unmarshal WitManifest from get", "error", err)
+		return
+	}
+	logger.Info("crj manifest status is: ", "status", getManifest.Status.GetStatusMap())
+	getManifestAsBytes, err := managedenvironment.ToBytes(getManifest)
+	if err != nil {
+		logger.Error("Failed to marshal ManagedEnvironment for gcp", "error", err)
+		return
+	}
+	err = mapMeGcpKV.Put(kve.Key, getManifestAsBytes)
+	if err != nil {
+		logger.Error("Failed to put KeyValue entry", "error", err)
+		return
+	}
+}
+
+func mapMeGcpHandle(kve *nats.KeyValueEntry) {
+	logger.Info("Handling KeyValue entry", "key", kve.Key)
+	managedGcpEnvAsBytes := kve.Value
+	managedGcpEnv, err := managedenvironment.ToManagedEnvironment(managedGcpEnvAsBytes)
+	if err != nil {
+		logger.Error("Failed to unmarshal ManagedEnvironment for gcp", "error", err)
+		return
+	}
+	isChanged := manifest.IsChanged(managedGcpEnv)
+	if !isChanged {
+		return
+	}
+	witManifest, err := manifest.ToWitManifest(managedGcpEnv)
+	if err != nil {
+		logger.Error("Failed to unmarshal WitManifest", "error", err)
+		return
+	}
+	// 1. update success
 	returnedWitManifest, err := cloudrunjobadmin.Update(witManifest)
 	if err != nil {
 		logger.Error("Failed to update/create cloudrunjob with manifest", "error", err)
@@ -84,18 +143,6 @@ func mapMeGcpHandle(kve *nats.KeyValueEntry) {
 		logger.Error("Failed to unmarshal WitManifest", "error", err)
 		return
 	}
-	getWitManifest, err := cloudrunjobadmin.Get(returnedWitManifest)
-	if err != nil {
-		logger.Error("Failed to get cloudrunjob with manifest", "error", err)
-		return
-	}
-	getManifest, err := manifest.FromWitManifest(getWitManifest)
-	if err != nil {
-		logger.Error("Failed to unmarshal WitManifest from get", "error", err)
-		return
-	}
-	logger.Info("crj manifet status is: ", "status", getManifest.Status.GetStatusMap())
-	// INFO: Logisk brist, denne vil alltid sette resource version i status til det samme som resource version i spec, som betyr at isChanged alltid vil returnere false
 	err = manifest.AddResourceVersion(returnedManifest)
 	if err != nil {
 		logger.Error("Failed to add resource version to updated manifest", "error", err)
@@ -106,14 +153,10 @@ func mapMeGcpHandle(kve *nats.KeyValueEntry) {
 		logger.Error("Failed to marshal ManagedEnvironment for gcp", "error", err)
 		return
 	}
-	// INFO: updating KV with new statuses
-	// check if returnedMAnifestAsBytes == witManifest
-	if manifest.IsChanged(returnedManifest) {
-		err = mapMeGcpKV.Put(kve.Key, returnedManifestAsBytes)
-		if err != nil {
-			logger.Error("Failed to put KeyValue entry", "error", err)
-			return
-		}
+	err = mapMeGcpKV.Put(kve.Key, returnedManifestAsBytes)
+	if err != nil {
+		logger.Error("Failed to put KeyValue entry", "error", err)
+		return
 	}
 	logger.Info("Done", "done", "yes")
 }
