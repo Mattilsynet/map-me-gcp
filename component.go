@@ -57,7 +57,6 @@ OBS! make sure its not recursively feeding ourselves
 2. put execution status in mapis manifest (EXECUTION_PENDING på første, EXECUTION_SUCCEEDED / på cronjob)
 3. write to kv
 */
-//TODO: Put this code inside provider cloudrunjob/component/pkg instead of here
 func RemoveResourceVersion(meGcp *managedgcpenvironment.ManagedGcpEnvironment) error {
 	if meGcp.Status == nil {
 		meGcp.Status = &managedgcpenvironment.ManagedGcpEnvironmentStatus{}
@@ -122,10 +121,13 @@ func mapMeGcpHandle(kve *nats.KeyValueEntry) {
 		logger.Error("Failed to unmarshal ManagedEnvironment for gcp", "error", err)
 		return
 	}
+	logger.Info("manifest.isChanged pre", "kv key", kve.Key)
 	isChanged := manifest.IsChanged(managedGcpEnv)
 	if !isChanged {
+		logger.Info("manifest.isChanged inside", "is changed", "false")
 		return
 	}
+	logger.Info("manifest.isChanged post", "is changed", "true")
 	witManifest, err := manifest.ToWitManifest(managedGcpEnv)
 	if err != nil {
 		logger.Error("Failed to unmarshal WitManifest", "error", err)
