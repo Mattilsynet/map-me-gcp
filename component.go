@@ -101,6 +101,11 @@ func mapManagedGcpEnvironmentCronjobHandle(kve *nats.KeyValueEntry) {
 		return
 	}
 	logger.Info("crj manifest status is: ", "status", getManifest.Status.GetStatusMap())
+	err = manifest.AddResourceVersion(getManifest)
+	if err != nil {
+		logger.Error("Failed to add resource version to updated manifest", "error", err)
+		return
+	}
 	getManifestAsBytes, err := managedenvironment.ToBytes(getManifest)
 	if err != nil {
 		logger.Error("Failed to marshal ManagedEnvironment for gcp", "error", err)
