@@ -62,6 +62,7 @@ jobs:
       - name: wash build
         shell: bash
         run: |
+          export WASH_ISSUER_KEY="${{ secrets.WASH_ISSUER_KEY }}"
           wash build
         #INFO: wash test application isolated, until we know how to test with secrets or other means like mocking, this is commented
       # - name: test component load
