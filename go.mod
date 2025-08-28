@@ -26,7 +26,7 @@ require (
 	github.com/samber/lo v1.50.0 // indirect
 	github.com/samber/slog-common v0.18.1 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
-	github.com/ulikunitz/xz v0.5.12 // indirect
+	github.com/ulikunitz/xz v0.5.14 // indirect
 	github.com/urfave/cli/v3 v3.3.3 // indirect
 	go.bytecodealliance.org/cm v0.3.0 // indirect
 	golang.org/x/crypto v0.37.0 // indirect
